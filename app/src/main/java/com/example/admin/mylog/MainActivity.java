@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
@@ -25,6 +26,10 @@ public class MainActivity extends AppCompatActivity {
     EditText e1,e2;
     Button btn;
     TextView tv;
+
+    private HttpsTransportSE androidHttpTransport;
+
+    private SoapSerializationEnvelope  envelope;
 
     private final String NAMESPACE = "http://tempuri.org/ValidateUser";
     private final String URL = "http://203.124.96.117:8063/Service1.asmx?op=ValidateUser";
@@ -70,6 +75,20 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(s);
 
             Dialog.dismiss();
+
+            try {
+                androidHttpTransport.call(SOAP_ACTION,envelope);
+                SoapPrimitive response= (SoapPrimitive) envelope.getResponse();
+
+                tv.setText(response.toString());
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (XmlPullParserException e) {
+                e.printStackTrace();
+            }
+
+
         }
 
         @Override
@@ -106,22 +125,24 @@ public class MainActivity extends AppCompatActivity {
         request.addProperty(passwordProp);
 
 
-        final SoapSerializationEnvelope  envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope  = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(request);
-        final HttpsTransportSE androidHttpTransport = (HttpsTransportSE) new HttpTransportSE(URL);
+        androidHttpTransport  = (HttpsTransportSE) new HttpTransportSE(URL);
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    androidHttpTransport.call(SOAP_ACTION,envelope);
-                    SoapPrimitive response= (SoapPrimitive) envelope.getResponse();
-                    tv.setText(response.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (XmlPullParserException e) {
-                    e.printStackTrace();
-                }
+
+                Toast.makeText(MainActivity.this, "success", Toast.LENGTH_SHORT).show();
+               // try {
+                   // androidHttpTransport.call(SOAP_ACTION,envelope);
+                    //SoapPrimitive response= (SoapPrimitive) envelope.getResponse();
+                   // tv.setText(response.toString());
+               // } catch (IOException e) {
+                  //  e.printStackTrace();
+               // } catch (XmlPullParserException e) {
+                //    e.printStackTrace();
+              //  }
             }
         });
 
